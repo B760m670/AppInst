@@ -1,0 +1,19 @@
+{
+  "name": "appinst",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:server": "pnpm --filter @appinst/server dev",
+    "dev:miniapp": "pnpm --filter @appinst/miniapp dev",
+    "build": "pnpm --filter @appinst/miniapp build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "migrate": "pnpm --filter @appinst/server migrate",
+    "seed": "pnpm --filter @appinst/server seed",
+    "start": "pnpm --filter @appinst/server start"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.28.0"
+}

@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: appinst
+      POSTGRES_PASSWORD: appinst
+      POSTGRES_DB: appinst
+    volumes: [pgdata:/var/lib/postgresql/data]
+    ports: ['5432:5432']
+  app:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://appinst:appinst@db:5432/appinst
+    ports: ['3000:3000']
+    depends_on: [db]
+    restart: unless-stopped
+volumes:
+  pgdata:
