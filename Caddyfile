@@ -1,0 +1,6 @@
+# Caddy obtains a Let's Encrypt certificate for {$DOMAIN} automatically.
+# Without your own domain use <server-ip-with-dashes>.sslip.io, e.g. 203-0-113-10.sslip.io.
+{$DOMAIN} {
+	encode gzip
+	reverse_proxy app:3000
+}

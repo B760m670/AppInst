@@ -6,14 +6,25 @@ services:
       POSTGRES_PASSWORD: appinst
       POSTGRES_DB: appinst
     volumes: [pgdata:/var/lib/postgresql/data]
-    ports: ['5432:5432']
+    ports: ['127.0.0.1:5432:5432']
   app:
     build: .
     env_file: .env
     environment:
       DATABASE_URL: postgres://appinst:appinst@db:5432/appinst
-    ports: ['3000:3000']
+    expose: ['3000']
     depends_on: [db]
+    restart: unless-stopped
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    ports: ['80:80', '443:443']
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on: [app]
     restart: unless-stopped
 volumes:
   pgdata:
+  caddy_data:
