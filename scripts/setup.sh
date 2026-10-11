@@ -27,10 +27,19 @@ if [ ! -f .env ]; then
   read -rp "Домен [${default_domain}]: " domain
   domain=${domain:-$default_domain}
 
+  https_port=443
+  if ss -tln | grep -qE '[:.]443 '; then
+    https_port=8443
+    echo "==> Порт 443 занят (например, VPN) — сайт будет на порту 8443"
+  fi
+  public_url="https://$domain"
+  [ "$https_port" = 443 ] || public_url="https://$domain:$https_port"
+
   cp .env.example .env
   set_env() { sed -i "s|^$1=.*|$1=$2|" .env; }
   set_env DOMAIN "$domain"
-  set_env PUBLIC_URL "https://$domain"
+  set_env HTTPS_PORT "$https_port"
+  set_env PUBLIC_URL "$public_url"
   set_env BOT_TOKEN "$bot_token"
   set_env BOT_USERNAME "$bot_username"
   set_env ADMIN_IDS "$admin_ids"
@@ -41,7 +50,7 @@ if [ ! -f .env ]; then
 fi
 
 docker compose up -d --build
-domain=$(grep '^DOMAIN=' .env | cut -d= -f2)
+url=$(grep '^PUBLIC_URL=' .env | cut -d= -f2)
 echo
-echo "Готово. Через минуту проверьте: https://$domain/api/v1/health"
-echo "В @BotFather → /newapp укажите URL Mini App: https://$domain"
+echo "Готово. Через минуту проверьте: $url/api/v1/health"
+echo "В @BotFather → /newapp укажите URL Mini App: $url"

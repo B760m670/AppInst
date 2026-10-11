@@ -19,7 +19,8 @@ services:
     image: caddy:2-alpine
     environment:
       DOMAIN: ${DOMAIN:?set DOMAIN in .env}
-    ports: ['80:80', '443:443']
+      HTTPS_PORT: ${HTTPS_PORT:-443}
+    ports: ['80:80', '${HTTPS_PORT:-443}:${HTTPS_PORT:-443}']
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
