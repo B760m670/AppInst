@@ -158,6 +158,15 @@ describe.skipIf(!dbUrl)('API', () => {
     expect((await app.inject({ url: '/api/v1/referrals/me', headers: authHeader(REFERRER) })).json().balanceMinor).toBe(15_500);
   });
 
+  it('disables checkout when Freekassa is not configured', async () => {
+    const noPay = await buildApp({ config: testConfig({ FREEKASSA_MERCHANT_ID: '' }), db, notifier });
+    const res = await noPay.inject({ method: 'POST', url: '/api/v1/orders', headers: authHeader(BUYER),
+      payload: { appIds: ['a1'], expectedAmountMinor: 79_000 } });
+    expect(res.json().error.code).toBe('payments_disabled');
+    expect((await noPay.inject('/api/v1/public-settings')).json().paymentsEnabled).toBe(false);
+    await noPay.close();
+  });
+
   it('restricts the admin API and applies settings', async () => {
     expect((await app.inject({ url: '/api/v1/admin/apps', headers: authHeader(BUYER) })).statusCode).toBe(403);
 

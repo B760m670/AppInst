@@ -25,9 +25,10 @@ const schema = z.object({
   /** Max age of Telegram initData accepted by the API. */
   INIT_DATA_MAX_AGE_SEC: z.coerce.number().default(86_400),
 
-  FREEKASSA_MERCHANT_ID: z.string().min(1),
-  FREEKASSA_SECRET_1: z.string().min(1),
-  FREEKASSA_SECRET_2: z.string().min(1),
+  /** Leave empty to run without payments (catalog and bot work, checkout is disabled). */
+  FREEKASSA_MERCHANT_ID: z.string().default(''),
+  FREEKASSA_SECRET_1: z.string().default(''),
+  FREEKASSA_SECRET_2: z.string().default(''),
   FREEKASSA_PAY_URL: z.url().default('https://pay.fk.money/'),
   /** Optional payment method id (the `i` parameter), e.g. the SBP method of your cabinet. */
   FREEKASSA_METHOD_ID: z.string().default(''),
@@ -41,7 +42,7 @@ const schema = z.object({
   MINIAPP_DIST: z.string().default(new URL('../../miniapp/dist', import.meta.url).pathname),
 });
 
-export type Config = z.infer<typeof schema>;
+export type Config = z.infer<typeof schema> & { paymentsEnabled: boolean };
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const parsed = schema.safeParse(env);
@@ -49,5 +50,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     const issues = parsed.error.issues.map((i) => `  ${i.path.join('.')}: ${i.message}`).join('\n');
     throw new Error(`Invalid environment:\n${issues}`);
   }
-  return parsed.data;
+  const c = parsed.data;
+  return { ...c, paymentsEnabled: !!(c.FREEKASSA_MERCHANT_ID && c.FREEKASSA_SECRET_1 && c.FREEKASSA_SECRET_2) };
 }

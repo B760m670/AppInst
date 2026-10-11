@@ -45,6 +45,7 @@ export const userRoutes =
     }));
 
     app.post('/orders', async (req) => {
+      if (!config.paymentsEnabled) throw new ApiError(503, 'payments_disabled', 'Оплата пока не подключена.');
       const body = z
         .object({ appIds: z.array(z.string().min(1)).min(1), expectedAmountMinor: z.number().int().nonnegative() })
         .parse(req.body);
@@ -59,7 +60,7 @@ export const userRoutes =
       return {
         order,
         paymentUrl:
-          order.status === 'pending' ? buildPaymentUrl(freekassa, order.id, order.amountMinor, order.currency) : null,
+          order.status === 'pending' && config.paymentsEnabled ? buildPaymentUrl(freekassa, order.id, order.amountMinor, order.currency) : null,
       };
     });
 

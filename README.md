@@ -50,12 +50,17 @@ pnpm start                  # сервер + бот (polling)
 
 1. **Бот.** Создать бота в @BotFather, затем `/newapp`. URL Mini App = `PUBLIC_URL`,
    short name указать в `MINIAPP_SHORT_NAME`. Кнопку меню сервер выставляет сам при старте.
-2. **Сервер.** Нужен VPS с публичным IP. В `.env` указать `DOMAIN` и `PUBLIC_URL`, затем
-   `docker compose up -d --build`. Caddy сам получит HTTPS-сертификат.
-   Своего домена ещё нет? Подойдёт бесплатный адрес [sslip.io](https://sslip.io):
-   IP `203.0.113.10` → `DOMAIN=203-0-113-10.sslip.io`, `PUBLIC_URL=https://203-0-113-10.sslip.io`.
-   Позже домен меняется в этих двух переменных, а в @BotFather обновляется URL Mini App.
-   При нескольких инстансах использовать `BOT_MODE=webhook`.
+2. **Сервер.** Нужен VPS на Ubuntu/Debian с публичным IP и открытыми портами 80 и 443. На сервере:
+   ```bash
+   git clone https://github.com/B760m670/AppInst && cd AppInst
+   bash scripts/setup.sh
+   ```
+   Скрипт ставит Docker, спрашивает токен бота, username и ваш Telegram id, создаёт `.env`
+   и запускает базу, приложение и Caddy (HTTPS). Без своего домена подставляется бесплатный адрес
+   [sslip.io](https://sslip.io) по IP сервера. Позже домен меняется в `DOMAIN` и `PUBLIC_URL`,
+   а в @BotFather обновляется URL Mini App.
+   Без данных Freekassa бот и каталог работают, только оформление заказа отключено.
+   После правки `.env` выполните `docker compose up -d`.
 3. **Freekassa**, в настройках магазина:
    - URL оповещения: `https://<PUBLIC_URL>/payments/freekassa` (метод POST);
    - URL успеха и неудачи: `https://t.me/<BOT_USERNAME>/<MINIAPP_SHORT_NAME>`;

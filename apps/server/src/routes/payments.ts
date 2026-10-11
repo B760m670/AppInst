@@ -19,6 +19,7 @@ export const paymentRoutes =
      * otherwise Freekassa retries the notification.
      */
     app.post('/freekassa', async (req, reply) => {
+      if (!config.paymentsEnabled) return reply.status(503).send('payments disabled');
       if (config.FREEKASSA_CHECK_IP && !FREEKASSA_IPS.includes(req.ip)) {
         req.log.warn({ ip: req.ip }, 'Freekassa notification from unknown IP');
         return reply.status(403).send('forbidden');

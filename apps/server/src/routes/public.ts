@@ -10,6 +10,7 @@ export const publicRoutes =
     app.get('/public-settings', async () => ({
       supportUrl: config.SUPPORT_URL || null,
       installationsPaused: await getInstallationsPaused(db),
+      paymentsEnabled: config.paymentsEnabled,
       botUrl: `https://t.me/${config.BOT_USERNAME}`,
     }));
 
