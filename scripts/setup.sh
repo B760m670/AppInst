@@ -4,6 +4,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# Small VPS (1 GB RAM): add swap so the image build (pnpm install + vite) does not run out of memory.
+if [ "$(swapon --show | wc -l)" -eq 0 ] && [ "$(awk '/MemTotal/ {print $2}' /proc/meminfo)" -lt 2000000 ]; then
+  echo "==> Добавляю swap 2 ГБ…"
+  fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile >/dev/null && swapon /swapfile
+  grep -q '^/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+
 if ! command -v docker >/dev/null 2>&1; then
   echo "==> Устанавливаю Docker…"
   curl -fsSL https://get.docker.com | sh
