@@ -1,0 +1,11 @@
+# Caddy obtains a Let's Encrypt certificate for {$DOMAIN} automatically (HTTP challenge on port 80).
+# Without your own domain use <server-ip-with-dashes>.sslip.io, e.g. 203-0-113-10.sslip.io.
+# HTTPS_PORT lets the site live on another port (e.g. 8443) when 443 is taken by a VPN.
+{
+	https_port {$HTTPS_PORT:443}
+}
+
+{$DOMAIN}:{$HTTPS_PORT:443} {
+	encode gzip
+	reverse_proxy app:3000
+}
